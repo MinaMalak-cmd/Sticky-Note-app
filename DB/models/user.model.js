@@ -32,7 +32,12 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-  }
+  },
+  // posts : {
+  //   type : Array,
+  //   ref:'Post',
+  //   required: false
+  // }
 }, {
   timestamps:true
 });

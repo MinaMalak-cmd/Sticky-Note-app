@@ -1,46 +1,98 @@
 import userModel from "../../../../DB/models/user.model.js";
 
 export const getAllUsers = async (req, res, next) => {
-  // const users = await userModel.find().select('userName firstName lastName email phone -_id');
-  const users = await userModel.find(
-    {},
-    {
-      userName: 1,
-      firstName: 1,
-      lastName: 1,
-      email: 1,
-      phone: 1,
-      age : 1,
-      _id: 1,
-      password: 1,
-    }
-  );
-  return res.json({ message: "Done", users });
+  try {
+    const users = await userModel.find(
+      {},
+      {
+        userName: 1,
+        firstName: 1,
+        lastName: 1,
+        email: 1,
+        phone: 1,
+        age: 1,
+        _id: 1,
+        password: 1,
+      }
+    );
+    return res.json({ message: "Done", users });
+  } catch (error) {
+    return error?.name === "CastError" && error?.kind === "ObjectId"
+      ? res.json({ message: "Invalid user id" })
+      : res.json({ message: "Catch error", error });
+  }
+};
+export const getUserProfile = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await userModel.findById(id).populate([
+      {
+        path : 'userId'
+      }
+    ]);
+    return user
+      ? res.json({ message: "Done", user })
+      : res.json({ message: "Not valid Id" });
+  } catch (error) {
+    return error?.name === "CastError" && error?.kind === "ObjectId"
+      ? res.json({ message: "Not valid Id" })
+      : res.json({ message: "Catch error" });
+  }
 };
 export const getByNameAndAge = async (req, res, next) => {
-  const { name, age } = req.query;
-  const users = await userModel.find(
-    {
-      userName : {
-        $regex: `^${name}`, 
-        $options: 'i'
+  try {
+    const { name, age } = req.query;
+    const users = await userModel.find(
+      {
+        userName: {
+          $regex: `^${name}`,
+          $options: "i",
+        },
+        age: {
+          $lt: age,
+        },
       },
-      age : {
-        $lt : age
+      {
+        userName: 1,
+        firstName: 1,
+        lastName: 1,
+        age: 1,
+        email: 1,
+        phone: 1,
+        _id: 1,
+        password: 1,
       }
-    },
-    {
-      userName: 1,
-      firstName: 1,
-      lastName: 1,
-      age:1,
-      email: 1,
-      phone: 1,
-      _id: 1,
-      password: 1,
-    }
-  );
-  return res.json({ message: "Done", users });
+    );
+    return res.json({ message: "Done", users });
+  } catch (error) {
+    return res.json({ message: "Catch error" });
+  }
+};
+export const getAgeBetween = async (req, res, next) => {
+  try {
+    const { age1, age2 } = req.query;
+    const users = await userModel.find(
+      {
+        age: {
+          $gte: age1,
+          $lte: age2,
+        },
+      },
+      {
+        userName: 1,
+        firstName: 1,
+        lastName: 1,
+        age: 1,
+        email: 1,
+        phone: 1,
+        _id: 1,
+        password: 1,
+      }
+    );
+    return res.json({ message: "Done", users });
+  } catch (error) {
+    return res.json({ message: "Catch error" });
+  }
 };
 export const addUser = async (req, res, next) => {
   try {
@@ -132,16 +184,15 @@ export const updateUser = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    
-    const user = await userModel.findByIdAndDelete(id);
-    console.log("🚀 ~ file: user.js:112 ~ deleteUser ~ user:", user)
 
-    return user 
+    const user = await userModel.findByIdAndDelete(id);
+
+    return user
       ? res.json({ message: "Done" })
       : res.json({ message: "Invalid user id" });
-      
   } catch (error) {
-
-    return (error?.name === "CastError" && error?.kind === "ObjectId") ? res.json({ message: "Invalid user id" }) : res.json({ message: "Catch error" });
+    return error?.name === "CastError" && error?.kind === "ObjectId"
+      ? res.json({ message: "Invalid user id" })
+      : res.json({ message: "Catch error" });
   }
 };
