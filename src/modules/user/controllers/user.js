@@ -10,13 +10,38 @@ export const getAllUsers = async (req, res, next) => {
       lastName: 1,
       email: 1,
       phone: 1,
+      age : 1,
       _id: 1,
       password: 1,
     }
   );
   return res.json({ message: "Done", users });
 };
-
+export const getByNameAndAge = async (req, res, next) => {
+  const { name, age } = req.query;
+  const users = await userModel.find(
+    {
+      userName : {
+        $regex: `^${name}`, 
+        $options: 'i'
+      },
+      age : {
+        $lt : age
+      }
+    },
+    {
+      userName: 1,
+      firstName: 1,
+      lastName: 1,
+      age:1,
+      email: 1,
+      phone: 1,
+      _id: 1,
+      password: 1,
+    }
+  );
+  return res.json({ message: "Done", users });
+};
 export const addUser = async (req, res, next) => {
   try {
     const {
@@ -86,13 +111,37 @@ export const updateUser = async (req, res, next) => {
     // }, {
     //   new:true
     // });
-    const user = await userModel.updateOne({_id:id},{
-      firstName, lastName, age
-    }, {
-      new:true
-    });
-    return user.matchedCount ? res.json({ message: "Done" }): res.json({ message: "Invalid user id" });
+    const user = await userModel.updateOne(
+      { _id: id },
+      {
+        firstName,
+        lastName,
+        age,
+      },
+      {
+        new: true,
+      }
+    );
+    return user.matchedCount
+      ? res.json({ message: "Done" })
+      : res.json({ message: "Invalid user id" });
   } catch (error) {
     return res.json({ message: "Catch error" });
+  }
+};
+export const deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await userModel.findByIdAndDelete(id);
+    console.log("🚀 ~ file: user.js:112 ~ deleteUser ~ user:", user)
+
+    return user 
+      ? res.json({ message: "Done" })
+      : res.json({ message: "Invalid user id" });
+      
+  } catch (error) {
+
+    return (error?.name === "CastError" && error?.kind === "ObjectId") ? res.json({ message: "Invalid user id" }) : res.json({ message: "Catch error" });
   }
 };
