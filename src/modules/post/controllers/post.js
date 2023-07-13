@@ -18,6 +18,23 @@ export const getAllPosts = async (req, res, next) => {
       : res.json({ message: "Catch error", error });
   }
 };
+export const getAllPostsSorted = async (req, res, next) => {
+    try {
+      const posts = await postModel.find(
+        {},
+        {
+          userId: 1,
+          title: 1,
+          content: 1,
+        }
+      ).sort({ createdAt: -1 });
+      return res.json({ message: "Done", posts });
+    } catch (error) {
+      return error?.name === "CastError" && error?.kind === "ObjectId"
+        ? res.json({ message: "Invalid user id" })
+        : res.json({ message: "Catch error", error });
+    }
+  };
 export const getAllPostsWithOwner = async (req, res, next) => {
   try {
     const posts = await postModel
