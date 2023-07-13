@@ -25,11 +25,7 @@ export const getAllUsers = async (req, res, next) => {
 export const getUserProfile = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const user = await userModel.findById(id).populate([
-      {
-        path : 'posts'
-      }
-    ]);
+    const user = await userModel.findById(id).populate('posts');
     return user
       ? res.json({ message: "Done", user })
       : res.json({ message: "Not valid Id" });

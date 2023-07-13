@@ -33,15 +33,12 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
-  // posts : {
-  //   type : Array,
-  //   ref:'Post',
-  //   required: false
-  // }
-  posts: [{
-    type: Schema.Types.ObjectId,
-    ref: "Post"
-  }]
+  posts: [
+    {
+       type: Schema.Types.ObjectId,
+       ref: 'Post'
+    }
+ ]
 }, {
   timestamps:true
 });
