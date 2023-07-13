@@ -27,7 +27,7 @@ export const getUserProfile = async (req, res, next) => {
     const { id } = req.params;
     const user = await userModel.findById(id).populate([
       {
-        path : 'userId'
+        path : 'posts'
       }
     ]);
     return user
